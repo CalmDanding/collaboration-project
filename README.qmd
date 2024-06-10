@@ -1,0 +1,210 @@
+---
+title: "README"
+author: "Yige Wang"
+date: "4/3/2024"
+format: 
+  html:
+    code-fold: true
+---
+
+# Introduction
+
+## What is the project for
+
+
+
+This project is based on the data Karl (My collaborator) provides to analyze the effect of a new treatment on gene expression, specifically looking at how the treatment influences the effect of a growth factor on gene expression. 
+
+
+
+All code is in the `r-code` directory.
+All data from Karl (collaborator) is dated and in `raw-data` directory.
+All figures are in `figs` folder.
+All tables in `tabs` folder.
+All functions the `_targets.R` uses are in `R` directory.
+
+## The codes are fold to make the `html` file look tidy. If you want to see the code please click "code" bottom.
+
+## Package
+
+This project used these packages. Please install and load these packages before you run this project.
+
+```{r}
+pacman::p_load("tidyverse", "tidymodels", "textrecipes","readxl","gt","pwr","ggrepel","showtext","lme4","merTools","caret","ggpubr", "glmnet")
+```
+
+# How to run the project and get report?
+
+This project is based on `targets` to do the analysis. If you want to redo the analysis or use codes, please use the `targets` package.
+
+```{r}
+# load targets package
+pacman::p_load(targets)
+```
+
+To generate the outcome of the project such as data, reports, you need to run: `tar_make()` in R console
+
+
+Then you can get the report named `Final Reprot` in the project folder.
+
+To show the structure of targets, you can run
+
+```{r}
+tar_visnetwork()
+```
+According to this plot, you can know the names of the data sets and models I got. Futhermore, you can also know what functions generate wihch data set.
+
+To load the data, plots, tables and so on I get, you could run:
+
+```{r}
+tar_load(WIF_data) # The name shown in the tar_visnetwork()
+
+# the data you just load
+head(WIF_data)
+```
+
+
+Here is a link about the tutorial of `targets`. It will help you to edit the project.
+`https://cran.r-project.org/web/packages/targets/vignettes/overview.html`
+
+# 2024-March-04 Analysis of Data
+
+
+
+## Clean Data
+
+Thank you for your cooperation and works, Karl. However, the data is not clear enough. There are some Uppercase or Lowercase issues.
+
+The first thing I did is rewriting the strings of data in same format.
+
+```{r}
+tar_load(WIF_data)
+tar_load(point_plots)
+tar_load(analysis_tabs)
+```
+
+The cleaned data I have put it in the folder called `data.` You can find it if you need.
+
+## The linear relationship between concentration and gene expression
+
+```{r}
+#| label: fig-groupByCell_line
+#| fig-cap: "The linear relationship between concentration and gene expression grouped by cell line"
+#| warning: false
+
+point_plots$GroupByCell_line
+```
+
+```{r}
+#| label: fig-groupByTreatment
+#| fig-cap: "The linear relationship between concentration and gene expression grouped by treatment"
+#| warning: false
+
+point_plots$GroupByTreatment
+```
+
+```{r}
+#| label: fig-groupByName
+#| fig-cap: "The linear relationship between concentration and gene expression grouped by name"
+#| warning: false
+
+point_plots$GroupByName
+```
+
+```{r}
+#| label: fig-groupByCase
+#| fig-cap: "The linear relationship between concentration and gene expression grouped by case"
+#| warning: false
+
+point_plots$GroupByCase
+```
+
+## Analysis
+
+Obviously there is a linear relation between concentration and gene expression.
+
+Here I 
+
+```{r}
+analysis_tabs$lm_conc
+```
+
+### The difference among groups
+
+```{r}
+analysis_tabs$avo_totalGroup
+```
+
+It shows cell_line is not significant factor.
+
+Maybe that is because we add name as a factor, which may reduce the influence of cell_line.
+
+```{r}
+analysis_tabs$avo_treatment_cell_line
+```
+
+The cell_line is totally not significant at all.
+
+To double verify it, I built a linear regression model
+
+```{r}
+analysis_tabs$lm_conc_cell_line
+```
+
+Hence cell_line is not significant. Just like the figure @fig-groupByCell_line shows, they are close lines.
+
+### Linear models
+
+```{r}
+analysis_tabs$lm_conc_treatment
+```
+
+It shows that the treatment does not significantly effect the gene expression as concentration is close to 0, but it has a significantly influence on the rate of increasing as @fig-groupByTreatment shows.
+
+Here I find the name is related to the treatment and cell_line, which means it is redundancy to analyse total three column. Hence, there just needs to analyse the treatment, cell_line and the combined, so I did not get linear model for that.
+
+```{r}
+analysis_tabs$lm_conc_case
+```
+
+The Activating Factor (one of treatment) has significant influence on the Wild-Type while it does not work significantly on the Cell-Type 101.
+
+## Conclusion
+
+The treatment only effects on the slope of gene expression.
+
+The Activating Factor will amplify the effort of concentration on gene expression.
+
+The Activating Factor (one of treatment) has significant influence on the Wild-Type while it does not work significantly on the Cell-Type 101.
+
+## 2024/3/20
+
+Here I find the name is related to the treatment and cell_line, which means it is redundancy to analyse total three column. Hence, there just needs to analyse the treatment, cell_line and the combined.
+
+# 2024-April-02 Conference Plot
+
+```{r}
+#| warning: false
+tar_read(conference_plot)
+```
+
+# 2024-May-20 Sample size
+
+To do a linear regression of gene expression with the predictors concentration, cell age, treatment (two levels), cell type (two levels), and media (two levels). We have done a previous study and got an $R^2$ of 0.1 between the predictors and the response level. 
+
+```{r}
+pwr.f2.test(u = 5, f2 = 0.1/(1 - 0.1), sig.level = 0.05, power = 0.9)
+```
+
+The sample size you need is 154.
+
+Detail see the document `Karl_Sample_Size.pdf` or`Karl_Sample_Size.qmd`
+
+# 2024-May-27 IMRaD Report
+
+This report is about the analysis and get a predictive model of gene expression. The final linear model (parameters) I got is 
+
+```{r}
+tar_read(predictive_model)
+```
+

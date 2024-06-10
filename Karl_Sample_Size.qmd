@@ -1,0 +1,36 @@
+---
+title: "Sample size"
+author: "Yige Wang"
+format: pdf
+---
+
+## The sample size you need is 154
+
+# Detail
+
+## This code is for calculating sample size of linear model.(R language)
+
+```{r}
+pacman::p_load(pwr)
+pwr.f2.test(u = 5, f2 = 0.1/(1 - 0.1), sig.level = 0.05, power = 0.9)
+```
+
+u: is the number of coefficients you'll have in your model except intercept.
+
+f2: is proportion of variance explained and.
+
+$$f_2 = \frac{R^2}{1-R^2}$$
+
+sig.level: is significance level.
+
+power: is power.
+
+## Calculate the sample size
+
+The sample size n:
+
+$$n=v+u+1$$
+
+Hence the sample size you need is
+
+$$n = 148 + 5 +1 = 154 $$

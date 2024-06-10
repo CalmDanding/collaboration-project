@@ -1,0 +1,286 @@
+---
+title: "Report of predictive model of WIF data"
+author: "Yige Wang"
+date: "4/3/2024"
+execute:
+  echo: false
+format: 
+  pdf
+---
+```{r}
+#| echo: false
+pacman::p_load(tidyverse, tidymodels, textrecipes, targets, showtext, readxl)
+## Add font
+  font_add(
+    family = "times",
+    regular = here::here(
+      "template","Times New Roman.ttf"
+    )
+  )
+  showtext_auto()
+```
+
+# Introduction
+
+## Dataset
+
+The data comes form experiments (provided by Karl, my collaborator). Here shows original data.
+
+```{r}
+tar_load(WIF_file)
+head(read_excel(WIF_file))
+```
+
+The meaning of column names is shown in Table 1
+
+
+| Name  | Meaning  |
+|--------|--------|
+| cell_line  | cell type   |
+| treatment   | treatment to sample, placebo or using Activating Factor   |
+| name | name of each sample   |
+| conc | concentration of Activating Factor or saline  |
+| gene_expression |  rate of gene expression |
+
+: Meaning of column name {.striped .hover}
+
+## Research question
+
+The report is about how to analyze the effect of a new treatment on gene expression, specifically looking at how the treatment influences the effect of a growth factor on gene expression and how to build a predictive model of gene expression.
+
+# Methods
+
+## Clean Data
+
+First of all I clean the data by correct the name of category variables, because there is same Letter capitalization error. I also add a column called "case" which is combination of variable "cell_line" and variable "treatment"
+
+```{r}
+tar_load(WIF_data)
+tar_load(point_plots)
+tar_load(analysis_tabs)
+head(WIF_data)
+```
+
+## Analysis
+
+First of all, to build a predictive model, I draw plots to have a overview of the relationship between variables.
+
+
+```{r}
+#| label: fig-groupByCell_line
+#| fig-cap: "The linear relationship between concentration and gene expression grouped by cell line"
+#| warning: false
+
+point_plots$GroupByCell_line
+```
+
+```{r}
+#| label: fig-groupByTreatment
+#| fig-cap: "The linear relationship between concentration and gene expression grouped by treatment"
+#| warning: false
+
+point_plots$GroupByTreatment
+```
+
+```{r}
+#| label: fig-groupByCase
+#| fig-cap: "The linear relationship between concentration and gene expression grouped by case"
+#| warning: false
+
+point_plots$GroupByCase
+```
+
+
+
+
+### The difference among groups
+
+Here I use t-test and Analysis of Variance to find the main relationship of variables.
+
+```{r}
+analysis_tabs$avo_totalGroup
+```
+
+It shows cell_line is not significant factor while other variables have a significant effort on the gene expression. 
+
+Maybe that is because we add "name" as a factor, which may reduce the influence of cell_line.
+
+```{r}
+analysis_tabs$avo_treatment_cell_line
+```
+
+The cell_line is totally not significant at all.
+
+To double verify it, I built a linear regression model
+
+```{r}
+analysis_tabs$lm_conc_cell_line
+```
+
+Here I find the name is related to the treatment and cell_line, which means it is redundancy to analyse total three column. Hence, there just needs to analyse the treatment, cell_line and the combined, so I did not get linear model for that.
+
+```{r}
+analysis_tabs$lm_conc_case
+```
+
+Hence cell_line is not significant. Just like the figure @fig-groupByCell_line shows, they are close lines.
+
+According to the relationship, I build a linear model with formula:
+
+gene_expression ~ conc + case + case * conc.
+
+
+## Building model
+
+### Split data into train data and test data
+
+Split data into train data, test data and use train data to generate the Cross-Validation for model training.
+
+V-fold cross-validation is a robust method for assessing the performance of a statistical model.
+
+
+```{r}
+set.seed(114514)
+WIF_data_modeling <- 
+  WIF_data |> 
+  dplyr::select(gene_expression, conc, case)
+
+WIF_split <- initial_split(WIF_data_modeling, strata = gene_expression)
+WIF_train <- training(WIF_split)
+WIF_test <- testing(WIF_split)
+WIF_cv <- vfold_cv(WIF_train)
+```
+
+### Modeling
+
+According to the formula:
+
+gene_expression ~ conc + case + case * conc,
+
+I build the model.
+
+```{r}
+WIF_recipe <- 
+recipe(gene_expression ~ conc + case, data = WIF_train) |>
+    step_dummy(all_nominal()) |>
+    step_normalize(all_numeric(), -all_outcomes()) |>
+    step_interact(terms = ~ conc:case_Cell.Type.101.Placebo) |>
+    step_interact(terms = ~ conc:case_Wild.Type.Activating.Factor.42) |>
+    step_interact(terms = ~ conc:case_Wild.Type.Placebo)
+
+WIF_model <- linear_reg(penalty = tune(), mixture = 1) |> 
+  set_mode("regression") |> 
+  set_engine("glmnet")
+
+WIF_wf <- workflow(WIF_recipe, WIF_model)
+WIF_wf
+```
+
+
+### Tune the model
+
+```{r}
+WIF_grid <- grid_regular(penalty(), levels = 50)
+
+WIF_tune <- tune_grid(
+  WIF_wf, 
+  resamples = WIF_cv, 
+  grid = WIF_grid
+  )
+collect_metrics(WIF_tune)
+WIF_tune |> autoplot()
+```
+
+### Find best model we get
+
+```{r}
+show_best(WIF_tune, metric = "rmse")
+```
+
+```{r}
+penalty <- select_best(WIF_tune, metric = "rmse")
+penalty
+```
+
+### Fit final model
+
+```{r}
+WIF_wf <- WIF_wf |> 
+  finalize_workflow(penalty)
+WIF_wf
+WIF_fit <- WIF_wf |> fit(WIF_train)
+```
+
+Result of fitting:
+
+```{r}
+WIF_fit |> extract_fit_engine() |> autoplot()
+```
+
+# Results
+
+## Relationship between variables
+
+```{r}
+#| label: fig-conference
+#| fig-cap: "The linear relationship between concentration and gene expression "
+#| warning: false
+
+tar_read(conference_plot)
+```
+
+As the plot @fig-conference shown, obviously there is a linear relation between concentration and gene expression. 
+
+According to  @fig-groupByCell_line @fig-groupByTreatment @fig-groupByCase, I find:  
+
+* The treatment only effects on the slope of gene expression.
+
+* The Activating Factor will amplify the effort of concentration on gene expression.
+
+* The Activating Factor (one of treatment) has significant influence on the Wild-Type while it does not work significantly on the Cell-Type 101.
+
+## Predictive model
+
+The parameter of the  best linear model I got are
+
+```{r}
+WIF_fit |>
+  pull_workflow_fit() |>
+  tidy()
+```
+
+Here "conc_x_case_Cell.Type.101.Placebo" means the interactive term.
+
+And the rmse and rsq of the model are
+
+```{r}
+last_fit(WIF_wf, WIF_split) |> collect_metrics()
+```
+
+
+# Discussion
+
+As the results shows, the root mean square error (RMSE)  indicates the average deviation of the predicted gene expression values from the actual values. The R-squared value  suggests that approximately 70% of the variability in gene expression is explained by the model, which is a reasonable fit given the complexity of biological data.
+
+I just consider one linear model as predictive model there are some point could make the model better in the future:
+
+* Including More Variables: Incorporating additional variables such as time points, different cell lines, and other treatment types could provide a more comprehensive understanding.
+* Non-linear Models: Exploring non-linear models or machine learning techniques may capture more complex relationships in the data.
+* Validation: Applying the model to an independent dataset to validate its predictive capability and generalizability.
+
+
+
+
+
+
+
+
+# Appendix
+
+```{r ref.label=knitr::all_labels()}
+#| echo: true
+#| eval: false
+pacman::p_load(tidyverse, targets, lubridate, gt)
+theme_set(theme_bw())
+"IMRaD_Report.qmd"
+```
