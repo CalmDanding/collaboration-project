@@ -18,12 +18,16 @@ This project is based on the data Karl (My collaborator) provides to analyze the
 
 
 All code is in the `r-code` directory.
+
 All data from Karl (collaborator) is dated and in `raw-data` directory.
+
 All figures are in `figs` folder.
+
 All tables in `tabs` folder.
+
 All functions the `_targets.R` uses are in `R` directory.
 
-## The codes are fold to make the `html` file look tidy. If you want to see the code please click "code" bottom.
+### The codes are fold to make the `html` file look tidy. If you want to see the code please click "code" bottom.
 
 ## Package
 
@@ -35,17 +39,17 @@ pacman::p_load("tidyverse", "tidymodels", "textrecipes","readxl","gt","pwr","ggr
 
 # How to run the project and get report?
 
-This project is based on `targets` to do the analysis. If you want to redo the analysis or use codes, please use the `targets` package.
+This project is based on `targets` to do the analysis. If you want to redo the analysis or use codes, please install and load the `targets` package.
 
 ```{r}
 # load targets package
 pacman::p_load(targets)
 ```
 
-To generate the outcome of the project such as data, reports, you need to run: `tar_make()` in R console
+### To generate the outcome of the project such as data, reports, you need to run: `tar_make()` in R console
 
 
-Then you can get the report named `Final Reprot` in the project folder.
+Then you can get the report named `IMRaD Reprot` in the project folder.
 
 To show the structure of targets, you can run
 
