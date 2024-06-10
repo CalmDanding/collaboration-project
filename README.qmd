@@ -56,7 +56,9 @@ To show the structure of targets, you can run
 ```{r}
 tar_visnetwork()
 ```
-According to this plot, you can know the names of the data sets and models I got. Futhermore, you can also know what functions generate wihch data set.
+According to this plot, you can know the names of the data sets and models I got. Furthermore, you can also know what functions generate which data set.
+
+The functions I used in the plot above, you can find them in `R` folder.
 
 To load the data, plots, tables and so on I get, you could run:
 
@@ -77,7 +79,7 @@ Here is a link about the tutorial of `targets`. It will help you to edit the pro
 
 ## Clean Data
 
-Thank you for your cooperation and works, Karl. However, the data is not clear enough. There are some Uppercase or Lowercase issues.
+Thank you for your cooperation and works, Karl. However, the data is not clear enough. There are some Uppercase or Lowercase issues. 
 
 The first thing I did is rewriting the strings of data in same format.
 
@@ -89,7 +91,16 @@ tar_load(analysis_tabs)
 
 The cleaned data I have put it in the folder called `data.` You can find it if you need.
 
+### 2024/3/20
+
+Here I find the name is related to the treatment and cell_line, which means it is redundancy to analyse total three column. Hence, there just needs to analyse the treatment, cell_line and the combined.
+
+Hence I add new variable called "case" which is combination of the treatment and cell_line.
+
+
 ## The linear relationship between concentration and gene expression
+
+Draw plots to overview the relationship.
 
 ```{r}
 #| label: fig-groupByCell_line
@@ -127,7 +138,7 @@ point_plots$GroupByCase
 
 Obviously there is a linear relation between concentration and gene expression.
 
-Here I 
+This analysis based on t-test and anova.
 
 ```{r}
 analysis_tabs$lm_conc
@@ -173,7 +184,6 @@ analysis_tabs$lm_conc_case
 
 The Activating Factor (one of treatment) has significant influence on the Wild-Type while it does not work significantly on the Cell-Type 101.
 
-## Conclusion
 
 The treatment only effects on the slope of gene expression.
 
@@ -181,9 +191,7 @@ The Activating Factor will amplify the effort of concentration on gene expressio
 
 The Activating Factor (one of treatment) has significant influence on the Wild-Type while it does not work significantly on the Cell-Type 101.
 
-## 2024/3/20
 
-Here I find the name is related to the treatment and cell_line, which means it is redundancy to analyse total three column. Hence, there just needs to analyse the treatment, cell_line and the combined.
 
 # 2024-April-02 Conference Plot
 
@@ -191,6 +199,8 @@ Here I find the name is related to the treatment and cell_line, which means it i
 #| warning: false
 tar_read(conference_plot)
 ```
+
+For details, you can find the function called `replot_conference.R` in the folder named "R".
 
 # 2024-May-20 Sample size
 
@@ -206,9 +216,10 @@ Detail see the document `Karl_Sample_Size.pdf` or`Karl_Sample_Size.qmd`
 
 # 2024-May-27 IMRaD Report
 
-This report is about the analysis and get a predictive model of gene expression. The final linear model (parameters) I got is 
+This report is about the analysis and get a predictive model of gene expression. For the predictive model, I use `tidymodel` to tune the model. The best linear model (parameters) I got is 
 
 ```{r}
 tar_read(predictive_model)
 ```
 
+For details, you can read the report and find a function called `get_predictive_model.R` in the folder named "R".

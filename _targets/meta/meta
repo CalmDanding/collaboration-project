@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|6502cb9ecaeb7cd1|||||||||||||||
+.Random.seed|object|e614191a31bbfeff|||||||||||||||
 analyse_table|function|cda66969d895a1db|||||||||||||||
 analysis_tabs|stem|8cc0c1e7e081e8a5|4adcb42edde48e66|c58fd52bcf37894f|-2099412275||t19883.596741504s|776be19c37d2f470|272302|rds|local|vector|||0.14||
 avo_totalGroup|stem|3dc29726e5598ad0|a024bf87315e4b3a|46dfb75ea75eaa12|-1357301690||t19872.5190695249s|59d3d876f10eff5e|4254|rds|local|vector|||0||
@@ -16,7 +16,7 @@ lm_total|stem|2a88c581016289fb|f1da5a447072ef47|46dfb75ea75eaa12|-697919278||t19
 plot_point|function|5e4a7a4beaa1a54b|||||||||||||||
 point_plots|stem|383d8f30ed49c21a|a6a3be5d909c6770|cc6b288bc2c69d42|1246295244||t19872.5226988806s|f40031137ca586ab|111662|rds|local|vector|||0.03||
 predictive_model|stem|ea84fe1bdbcc2391|d7b3bb60538c5a7d|fc25f05917b10b7c|486317215||t19884.6535100436s|0f05aa39aab40022|347|rds|local|vector|||1.69|pull_workflow_fit was deprecated in workflows 0.2.3.ℹ Please use extract_fit_parsnip instead.|
-readme|stem|d19ca4f70d38960b|4c3333292cd7c409|ca72d9274106d673|980901812|README.html*README_files*README.qmd|t19884.6856700374s|791e7e8bc81610cb|2012372|file|local|vector|||14.32||
+readme|stem|d1371036e3c87904|4c3333292cd7c409|ca72d9274106d673|980901812|README.html*README_files*README.qmd|t19884.7037229423s|419d64c498e7f341|2013618|file|local|vector|||13.84||
 replot_conference|function|8e4861a04509978a|||||||||||||||
 sample_size|stem|3961c6fc1c235a27|39dba8247317f3ad|ef46db3751d8e999|-1641849894|Karl_Sample_Size.pdf*Karl_Sample_Size.qmd|t19884.3159755868s|18610a0838b110cf|22023|file|local|vector|||9.37||
 WIF_data|stem|0220648dac846421|7b657ffb3aff51b6|c80d89d95d815145|-104832863||t19872.480453155s|30058dcf7ba5aaed|798|rds|local|vector|||0.17||
