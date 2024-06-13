@@ -39,7 +39,9 @@ pacman::p_load("tidyverse", "tidymodels", "textrecipes","readxl","gt","pwr","ggr
 
 # How to run the project and get report?
 
-This project is based on `targets` to do the analysis. If you want to redo the analysis or use codes, please install and load the `targets` package.
+First click `collaboration-project.Rproj` to open the project file.
+
+This project is based on `targets` to do the analysis. If you want to redo the project or use codes, please install and load the `targets` package.
 
 ```{r}
 # load targets package
@@ -49,7 +51,7 @@ pacman::p_load(targets)
 ### To generate the outcome of the project such as data, reports, you need to run: `tar_make()` in R console
 
 
-Then you can get the report named `IMRaD Reprot` in the project folder.
+Then you can get the project report named `IMRaD Reprot` in the project folder.
 
 To show the structure of targets, you can run
 
@@ -215,6 +217,8 @@ The sample size you need is 154.
 Detail see the document `Karl_Sample_Size.pdf` or`Karl_Sample_Size.qmd`
 
 # 2024-May-27 IMRaD Report
+
+This report is based on this project.
 
 This report is about the analysis and get a predictive model of gene expression. For the predictive model, I use `tidymodel` to tune the model. The best linear model (parameters) I got is 
 
